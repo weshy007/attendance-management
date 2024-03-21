@@ -300,13 +300,13 @@ def create_attendance(sender, instance, **kwargs):
 def create_marks(sender, instance, **kwargs):
     if kwargs['created']:
         if hasattr(instance, 'name'):
-            ass_list = instance.class_id.assign_set.all()
+            assigned_list = instance.class_id.assign_set.all()
             
-            for ass in ass_list():
+            for assigned in assigned_list:
                 try:
-                    StudentCourse.objects.get(student=instance, course=ass.course)
+                    StudentCourse.objects.get(student=instance, course=assigned.course)
                 except StudentCourse.DoesNotExist:
-                    sc = StudentCourse(student=instance, course=ass.course)
+                    sc = StudentCourse(student=instance, course=assigned.course)
                     sc.save()
                     sc.marks_set.create(name='Internal test 1')
                     sc.marks_set.create(name='Internal test 2')

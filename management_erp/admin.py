@@ -28,7 +28,7 @@ class ClassInline(admin.TabularInline):
     extra = 0
 
 
-class deptartmentAdmin(admin.ModelAdmin):
+class departmentAdmin(admin.ModelAdmin):
     inlines = [ClassInline]
     list_display = ('name', 'id')
     search_fields = ('name', 'id')
@@ -42,14 +42,14 @@ class StudentInline(admin.TabularInline):
 
 class ClassAdmin(admin.ModelAdmin):
     list_display = ('id', 'department', 'semester', 'section')
-    search_fields = ('id', 'deptartment__name', 'semester', 'section')
-    ordering = ['deptartment__name', 'semester', 'section']
+    search_fields = ('id', 'department__name', 'semester', 'section')
+    ordering = ['department__name', 'semester', 'section']
     inlines = [StudentInline]
 
 
 class CourseAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'department')
-    search_fields = ('id', 'name', 'deptartment__name')
+    search_fields = ('id', 'name', 'department__name')
     ordering = ['department', 'id']
 
 
@@ -61,8 +61,8 @@ class AssignTimeInline(admin.TabularInline):
 class AssignAdmin(admin.ModelAdmin):
     inlines = [AssignTimeInline]
     list_display = ('class_id', 'course', 'lecturer')
-    search_fields = ('class_id__deptartment__name', 'class_id__id', 'course__name', 'teacher__name', 'course__shortname')
-    ordering = ['class_id__deptartment__name', 'class_id__id', 'course__id']
+    search_fields = ('class_id__department__name', 'class_id__id', 'course__name', 'teacher__name', 'course__shortname')
+    ordering = ['class_id__department__name', 'class_id__id', 'course__id']
     raw_id_fields = ['class_id', 'course', 'lecturer']
 
 
@@ -74,26 +74,26 @@ class MarksInline(admin.TabularInline):
 class StudentCourseAdmin(admin.ModelAdmin):
     inlines = [MarksInline]
     list_display = ('student', 'course',)
-    search_fields = ('student__name', 'course__name', 'student__class_id__id', 'student__class_id__deptartment__name')
-    ordering = ('student__class_id__deptartment__name', 'student__class_id__id', 'student__USN')
+    search_fields = ('student__name', 'course__name', 'student__class_id__id', 'student__class_id__department__name')
+    ordering = ('student__class_id__department__name', 'student__class_id__id', 'student__USN')
 
 
 class StudentAdmin(admin.ModelAdmin):
     list_display = ('USN', 'name', 'class_id')
-    search_fields = ('USN', 'name', 'class_id__id', 'class_id__deptartment__name')
-    ordering = ['class_id__deptartment__name', 'class_id__id', 'USN']
+    search_fields = ('USN', 'name', 'class_id__id', 'class_id__department__name')
+    ordering = ['class_id__department__name', 'class_id__id', 'USN']
 
 
 class TeacherAdmin(admin.ModelAdmin):
     list_display = ('name', 'department')
-    search_fields = ('name', 'deptartmentartment__name')
-    ordering = ['deptartment__name', 'name']
+    search_fields = ('name', 'departmentartment__name')
+    ordering = ['department__name', 'name']
 
 
 class AttendanceClassAdmin(admin.ModelAdmin):
     list_display = ('assign', 'date', 'status')
     ordering = ['assign', 'date']
-    change_list_template = 'admin/attendance/attendance_change_list.html'
+    change_list_template = 'admin/attendance_change_list.html'
 
     def get_urls(self):
         urls = super().get_urls()
@@ -132,7 +132,7 @@ class AttendanceClassAdmin(admin.ModelAdmin):
 
 
 admin.site.register(User, UserAdmin)
-admin.site.register(Department, deptartmentAdmin)
+admin.site.register(Department, departmentAdmin)
 admin.site.register(Class, ClassAdmin)
 admin.site.register(Student, StudentAdmin)
 admin.site.register(Course, CourseAdmin)
