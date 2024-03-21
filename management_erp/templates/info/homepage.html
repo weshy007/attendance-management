@@ -10,7 +10,9 @@
 
     <title>homepage</title>
       {% load static %}
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+      <!-- Bootstrap CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+
 
     <!-- Bootstrap core CSS -->
       <link href="{% static '/info/homepage/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
@@ -29,7 +31,7 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
       <div class="container">
-        <a class="navbar-brand" href="{% url 'index' %}">College Management System</a>
+          <a class="navbar-brand" href="{% url 'index' %}">College Management System</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -51,7 +53,7 @@
 
       <!-- Jumbotron Header -->
       <header class="jumbotron my-4">
-        <h1 class="display-3 text-capitalize">Welcome {{ request.user.teacher.name }}</h1>
+        <h1 class="display-3 text-capitalize">Welcome {{ request.user.student.name }}</h1>
 {#        <p class="lead">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa, ipsam, eligendi, in quo sunt possimus non incidunt odit vero aliquid similique quaerat nam nobis illo aspernatur vitae fugiat numquam repellat.</p>#}
 {#        <a href="#" class="btn btn-primary btn-lg">Call to action!</a>#}
       </header>
@@ -61,67 +63,52 @@
 
         <div class="col-lg-3 col-md-6 mb-4">
           <div class="card">
-              <a href="{% url 't_clas' request.user.teacher.id 1 %}">
+              <a href="{% url 'attendance' request.user.student.USN %}">
                 <img class="card-img-top" src="{% static 'info/images/attendance2.jpg' %}" alt="">
               </a>
               <div class="card-body">
               <h4 class="card-title">Attendance</h4>
-              <p class="card-text">Enter the attendance of the students based on the class they are in. There is also
-                  the provision to edit the attendance of a whole class or student individually.</p>
+              <p class="card-text">View the attendance status for each of your courses. The attendance of each course is
+                  also displayed as list of classes that were conducted.</p>
             </div>
             <div class="card-footer">
-                <a class="btn btn-primary" role="button" href="{% url 't_clas' request.user.teacher.id 1 %}"> Enter Attendance</a>
+                <a class="btn btn-primary" role="button" href="{% url 'attendance' request.user.student.USN %}"> View Attendance</a>
             </div>
           </div>
         </div>
 
         <div class="col-lg-3 col-md-6 mb-4">
           <div class="card">
-              <a href="{% url 't_clas' request.user.teacher.id 2 %}">
+              <a href="{% url 'marks_list' request.user.student.USN %}">
                 <img class="card-img-top" src="{% static 'info/images/marks.jpg' %}" alt="">
               </a>
               <div class="card-body">
               <h4 class="card-title">Marks</h4>
-              <p class="card-text">Enter the marks of the students based on the class they are in. This includes
-                    Internals, events and SEE. The marks of the students can also be edited.</p>
+              <p class="card-text">View the marks obtained for each of your courses. These include the marks of 3
+                  internal assessment, 2 events and the Semester End Exam  </p>
             </div>
             <div class="card-footer">
-                <a class="btn btn-primary" role="button" href="{% url 't_clas' request.user.teacher.id 2 %}">Enter Marks</a>
+                <a class="btn btn-primary" role="button" href="{% url 'marks_list' request.user.student.USN %}">View Marks</a>
             </div>
           </div>
         </div>
 
         <div class="col-lg-3 col-md-6 mb-4">
           <div class="card">
-              <a href="{% url 't_timetable' request.user.teacher.id %}">
+              <a href="{% url 'timetable' request.user.student.class_id_id %}">
                 <img class="card-img-top" src="{% static 'info/images/timetable.png' %}" alt="">
               </a>
               <div class="card-body">
               <h4 class="card-title">TimeTable</h4>
-              <p class="card-text">View the timetable in a tabular form. For a particular class, it specifies a
-                  list of teachers who handle the same class that are free for that time slot.</p>
+              <p class="card-text">View the timetable in a tabular form. The timetable displays all the courses of the
+                  student and the time and day at which they are conducted.</p>
             </div>
             <div class="card-footer">
-                <a class="btn btn-primary" role="button" href="{% url 't_timetable' request.user.teacher.id %}">View TimeTable</a>
+                <a class="btn btn-primary" role="button" href="{% url 'timetable' request.user.student.class_id_id %}">View TimeTable</a>
             </div>
           </div>
         </div>
 
-        <div class="col-lg-3 col-md-6 mb-4">
-          <div class="card">
-            <a href="{% url 't_clas' request.user.teacher.id 3 %}">
-                <img class="card-img-top" src="{% static 'info/images/reports.png' %}" alt="">
-            </a>
-            <div class="card-body">
-              <h4 class="card-title">Reports</h4>
-              <p class="card-text">Generate reports for each class. These reports include generating a table consisting
-                    of the students belonging to that class and their respective CIE and Attendance.</p>
-            </div>
-            <div class="card-footer">
-              <a href="{% url 't_clas' request.user.teacher.id 3 %}" class="btn btn-primary">Generate Reports</a>
-            </div>
-          </div>
-        </div>
 
       </div>
       <!-- /.row -->
