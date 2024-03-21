@@ -17,7 +17,7 @@ def index(request):
 
 def attendance(request, student_id):
     student = Student.objects.get(USN=student_id)
-    assigned_list = Assign.objects.get(class_id_id=student.class_id)
+    assigned_list = Assign.objects.filter(class_id_id=student.class_id)
     attendance_list = []
 
     for assigned in assigned_list:
@@ -37,7 +37,69 @@ def attendance(request, student_id):
 
 
 '''
-TEACHERS MARKS
+GENERAL VIEWS
+'''
+@login_required
+def timetable(request, class_id):
+    assigned_time = AssignTime.objects.filter(assign__class_id=class_id)
+    matrix = [['' for i in range(12)] for j in range(6)]
+
+    for i, (day, _) in enumerate(DAYS_OF_WEEK):
+        t = 0
+
+        for j in range(12):
+            if j == 0:
+                matrix[i][0] = day 
+                continue
+            if j == 4 or j == 8:
+                continue
+            try:
+                a = assigned_time.get(period=TIME_SLOTS[t % len(TIME_SLOTS)][0], day=day) 
+                matrix[i][j] = a.assign.course_id
+            except AssignTime.DoesNotExist:
+                pass
+            t += 1
+
+    context = {
+        'matrix': matrix,
+        }
+
+    return render(request, 'info/timetable.html', context)
+
+
+'''
+STUDENT MARKS VIEWS
+'''
+@login_required
+def marks_list(request, student_id):
+    student = Student.objects.get(USN=student_id)
+    assinged_list = Assign.objects.filter(class_id_id=student.class_id)
+    student_c_list = []
+
+    for assigned in assinged_list:
+        try: 
+            sc = StudentCourse.objects.get(student=student, course=assigned.course)
+        except StudentCourse.DoesNotExist:
+            sc =StudentCourse(student=student, course=assigned.course)
+            sc.save()
+            sc.marks_set.create(type='I', name='Internal test 1')
+            sc.marks_set.create(type='I', name='Internal test 2')
+            sc.marks_set.create(type='I', name='Internal test 3')
+            sc.marks_set.create(type='E', name='Event 1')
+            sc.marks_set.create(type='E', name='Event 2')
+            sc.marks_set.create(type='S', name='Semester End Exam')
+
+        student_c_list.append(sc)
+
+    context = {
+        'student_c_list': student_c_list,
+        }
+
+    return render(request, 'info/marks_list.html', context)
+
+
+'''
+TEACHERS MARKS VIEWS
 '''
 @login_required
 def t_marks_list(request, assign_id):

@@ -7,6 +7,11 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('student/<uuid:student_id>/attendance/', views.attendance, name='attendance'),
 
+    # STUDENT VIEWS URLS
+    path('student/<uuid:student_id>/marks_list/', views.marks_list, name='marks_list'),
+
+    path('student/<uuid:class_id>/timetable/', views.timetable, name='timetable'),
+
     # TEACHERS VIEWS URLS
     path('teacher/<uuid:assign_id>/marks_list/', views.t_marks_list, name='t_marks_list'),
     path('teacher/<uuid:marks_c_id>/marks_entry/', views.t_marks_entry, name='t_marks_entry'),
