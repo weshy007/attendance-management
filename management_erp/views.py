@@ -42,7 +42,7 @@ GENERAL VIEWS
 @login_required
 def timetable(request, class_id):
     assigned_time = AssignTime.objects.filter(assign__class_id=class_id)
-    matrix = [['' for i in range(12)] for j in range(6)]
+    matrix = [['' for i in range(5)] for j in range(5)]
 
     for i, (day, _) in enumerate(DAYS_OF_WEEK):
         t = 0
