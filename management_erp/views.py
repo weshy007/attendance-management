@@ -104,6 +104,43 @@ def t_class_date(request, assign_id):
     return render(request, 'info/t_class_date.html', context)
 
 
+@login_required
+def cancel_class(request, ass_c_id):
+    assigned_class = get_object_or_404(AttendanceClass, id=ass_c_id)
+    assigned_class = 2
+    assigned_class.save()
+
+    return HttpResponseRedirect(reverse('t_class_date', args=(assigned_class.assign_id,)))
+
+
+@login_required
+def t_attendance(request, ass_c_id):
+    assigned_class = get_object_or_404(AttendanceClass, id=ass_c_id)
+    assigned = assigned_class.assign
+    c = assigned.class_id       # <---- Class assigned
+
+    context = {
+        'assigned_class': assigned_class,
+        'c': c,
+        'assigned': assigned
+    }
+
+    return render(request, 'info/t_attendance.html', context)
+
+@login_required
+def edit_att(request, ass_c_id):
+    assigned_class = get_object_or_404(AttendanceClass, id=ass_c_id)
+    course = assigned_class.assign.course
+    attendance_list = Attendance.objects.filter(attendanceclass=assigned_class, course=course)
+
+    context = {
+        'assigned_class': assigned_class,
+        'attendance_list': attendance_list
+    }
+
+    return render(request, 'info/t_edit_att.html', context)
+
+
 '''
 GENERAL VIEWS
 '''

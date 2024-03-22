@@ -16,6 +16,10 @@ urlpatterns = [
     # TEACHERS VIEWS URLS
     path('teacher/<uuid:teacher_id>/<int:choice>/Classes/', views.t_class, name='t_clas'),
     path('teacher/<uuid:assign_id>/Students/attendance/', views.t_student, name='t_student'),
+    path('teacher/<uuid:assign_id>/ClassDates/', views.t_class_date, name='t_class_date'),
+    path('teacher/<uuid:ass_c_id>/Cancel/', views.cancel_class, name='cancel_class'),
+    path('teacher/<uuid:ass_c_id>/attendance/', views.t_attendance, name='t_attendance'),
+    path('teacher/<uuid:ass_c_id>/edit_att/', views.edit_att, name='edit_att'),
 
     path('teacher/<uuid:assign_id>/marks_list/', views.t_marks_list, name='t_marks_list'),
     path('teacher/<uuid:marks_c_id>/marks_entry/', views.t_marks_entry, name='t_marks_entry'),
