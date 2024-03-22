@@ -2,6 +2,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
+from django.utils import timezone
 
 from .models import *
 
@@ -14,7 +15,11 @@ def index(request):
         return render(request, 'info/homepage.html')
     return render(request, 'info/logout.html')
 
+'''
+ATTENDANCE VIEWS
+'''
 
+@login_required
 def attendance(request, student_id):
     student = Student.objects.get(USN=student_id)
     assigned_list = Assign.objects.filter(class_id_id=student.class_id)
@@ -34,6 +39,69 @@ def attendance(request, student_id):
     }
     
     return render(request, 'info/attendance.html', context)
+
+
+@login_required
+def attendance_detail(request, student_id, course_id):
+    student = get_object_or_404(Student, USN=student_id)
+    course = get_object_or_404(Course, id=course_id)
+    attendance_list = Attendance.objects.filter(course=course, student=student).order_by('date')
+
+    context = {
+        'attendance_list': attendance_list, 
+        'course': course,
+    }
+
+    return render(request, 'info/att_detail.html', context)
+    
+
+'''
+TEACHER VIEWS
+'''
+
+@login_required
+def t_class(request, teacher_id, choice):
+    teacher = get_object_or_404(Teacher, id=teacher_id)
+
+    context = {
+        'teacher': teacher, 
+        'choice': choice
+        }
+
+    return render(request, 'info/t_clas.html', context)
+
+
+@login_required
+def t_student(request, assign_id):
+    assigned = Assign.objects.get(id=assign_id)
+    attendance_list = []
+
+    for student in assigned.class_id.student_set.all():
+        try:
+            a = AttendanceTotal.objects.get(student=student, course=assigned.course)
+        except AttendanceTotal.DoesNotExist:
+            a = AttendanceTotal(student=student, course=assigned.course)
+            a.save()
+        attendance_list.append(a)
+
+    context = {
+        'attendance_list': attendance_list,
+    }
+
+    return render(request, 'info/t_students.html', context)
+
+
+@login_required
+def t_class_date(request, assign_id):
+    now = timezone.now()
+    assigned = get_object_or_404(Assign, id=assign_id)
+    attendance_list = assigned.attendanceclass_set.filter(date__lte=now).order_by('-date')
+
+    context = {
+        'attendance_list': attendance_list
+        }
+
+    return render(request, 'info/t_class_date.html', context)
 
 
 '''
