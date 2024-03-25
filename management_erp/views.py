@@ -1,6 +1,7 @@
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout
 from django.urls import reverse
 from django.utils import timezone
 
@@ -14,6 +15,11 @@ def index(request):
     if request.user.is_student:
         return render(request, 'info/homepage.html')
     return render(request, 'info/logout.html')
+
+def logout_view(request):
+    logout(request)
+    # Redirect to a success page, or anywhere you want
+    return redirect('index')
 
 '''
 ATTENDANCE VIEWS
@@ -139,6 +145,157 @@ def edit_att(request, ass_c_id):
     }
 
     return render(request, 'info/t_edit_att.html', context)
+
+@login_required
+def confirm(request, ass_c_id):
+    assigned_class = get_object_or_404(AttendanceClass, id=ass_c_id)
+    assigned = assigned_class.assign
+    course = assigned.course
+    cl = assigned.class_id
+
+    for i, s in enumerate(cl.student_set.all()):
+        status = request.POST[s.USN]
+        if status == 'present':
+            status =  'True'
+        else: 
+            status = 'False'
+        
+        if assigned_class.status == 1:
+            try:
+                a = Attendance.objects.get(course=course, student=s, date=assigned_class.date, attendanceclass=assigned_class)
+                a.status = status
+                a.save()
+            except Attendance.DoesNotExist:
+                a = Attendance(course=course, student=s, status=status, date=assigned_class.date, attendanceclass=assigned_class)
+                a.save()
+                assigned_class.status = 1
+                assigned_class.save()
+        else:
+            a = Attendance(course=course, student=s, status=status, date=assigned_class.date, attendanceclass=assigned_class)
+            a.save()
+            assigned_class.status = 1
+            assigned_class.save()
+
+    return HttpResponseRedirect(reverse('t_class_date', args=(assigned.id,)))
+
+
+@login_required
+def t_attendance_detail(request, student_id, course_id):
+    student = get_object_or_404(Student, USN=student_id)
+    course = get_object_or_404(Course, id=course_id)
+    attendance_list = Attendance.objects.filter(course=course, student=student).order_by('date')
+
+    context = {
+        'attendance_list': attendance_list,
+        'course': course
+    }
+
+    return render(request, 'info/t_att_detail.html', context)
+
+
+@login_required
+def change_att(request, att_id):
+    attendance = get_object_or_404(Attendance, id=att_id)
+    attendance = not attendance.status
+    attendance.save()
+
+    return HttpResponseRedirect(reverse('t_attendance_detail', args=(attendance.student.USN, attendance.course_id)))
+
+
+@login_required
+def t_extra_class(request, assign_id):
+    assigned = get_object_or_404(Assign, id=assign_id)
+    c = assigned.class_id
+
+    context = {
+        'assigned': assigned,
+        'c': c
+    }
+    
+    return render(request, 'info/t_extra_class.html', context)
+    
+
+@login_required
+def e_confirm(request, assign_id):
+    assinged = get_object_or_404(Assign, id=assign_id)
+    course = assinged.course
+    cl = assinged.class_id
+    assigned_class = assinged.attendanceclass_set.create(status=1, date=request.POST['date'])
+    assigned_class.save()
+
+    for i, s in enumerate(cl.student_set.all()):
+        status = request.POST[s.USN]
+        if status == 'present':
+            status = 'True'
+        else:
+            status = 'False'
+        date = request.POST['date']
+        a = AttendanceClass(course=course, student=s, status=status, date=date, attendanceclass=assigned_class)
+        a.save()
+
+    return HttpResponseRedirect(reverse('t_clas', args=(assinged.lecturer_id, 1)))
+
+
+@login_required
+def t_report(request, assign_id):
+    assigned = get_object_or_404(Assign, id=assign_id)
+
+    sc_list = []
+
+    for student in assigned.class_id.student_set.all():
+        a = StudentCourse.objects.get(student=student, course=assigned.course)
+        sc_list.append(a)
+
+    context = {
+        'sc_list': sc_list
+        }
+
+    return render(request, 'info/t_report.html', context)
+
+
+@login_required
+def t_timetable(request, lecturer_id):
+    assigned_time = AssignTime.objects.filter(assign__lecturer_id=lecturer_id)
+    class_matrix = [[True for i in range(12)] for j in range(6)]
+
+    for i, d in enumerate(DAYS_OF_WEEK):
+        t = 0
+        for j in range(12):
+            if j == 0:
+                class_matrix[i][0] = d[0]
+                continue
+            if j == 4 or j == 8:
+                continue
+            try:
+                a = assigned_time.get(period=TIME_SLOTS[t][0], day=d[0])
+                class_matrix[i][j] = a
+            except AssignTime.DoesNotExist:
+                pass
+            t += 1
+
+    context = {
+        'class_matrix': class_matrix,
+    }
+    return render(request, 'info/t_timetable.html', context)
+
+
+@login_required
+def free_teachers(request, asst_id):
+    assigned_time = get_object_or_404(AssignTime, id=asst_id)
+
+    ft_list = []
+    t_list = Teacher.objects.filter(assign__class_id__id=assigned_time.assign.class_id_id)
+
+    for t in t_list:
+        at_list = AssignTime.objects.filter(assign__teacher=t)
+        if not any([True if at.period == assigned_time.period and at.day == assigned_time.day else False for at in at_list]):
+            ft_list.append(t)
+
+    context = {
+        'ft_list': ft_list
+        }
+
+    return render(request, 'info/free_teachers.html', context)
 
 
 '''
