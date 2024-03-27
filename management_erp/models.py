@@ -88,7 +88,7 @@ class Class(models.Model):
 
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
-    class_id = models.ForeignKey(Class, on_delete=models.CASCADE, default=1)
+    class_id = models.ForeignKey(Class, on_delete=models.CASCADE)
     USN = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=200)
     sex = models.CharField(max_length=50, choices=GENDER, default='Male')
@@ -101,7 +101,7 @@ class Student(models.Model):
 class Teacher(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
-    department = models.ForeignKey(Department, on_delete=models.CASCADE, default=1)
+    department = models.ForeignKey(Department, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     gender = models.CharField(max_length=20, choices=GENDER, default='Male')
     DOB = DOB = models.DateField(default='1980-01-01')
@@ -252,7 +252,7 @@ class Marks(models.Model):
 class MarksClass(models.Model):
     assign = models.ForeignKey(Assign, on_delete=models.CASCADE)
     name = models.CharField(max_length=50, choices=TEST_NAME, default='Internal test 1')
-    status = models.BooleanField(default='False')
+    status = models.BooleanField(default=False)
 
     class Meta:
         unique_together = (('assign', 'name'),)
